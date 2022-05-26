@@ -4,9 +4,11 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fetchuser = require('../middleware/fetchuser');
 
+const JWT_SECRET = 'Aakash123rocks#';
 
-// Create a user End point -> createuser
+// ROUTE-1 Create a user End point -> createuser ("/api/auth/createuser")[No login required]
 
 
 router.post('/createuser', [
@@ -36,7 +38,6 @@ router.post('/createuser', [
 			password: secPass,
 		})
 		// Add Json Web Token
-		const JWT_SECRET = 'Aakash123rocks#'
 		const data = {
 			user: {
 				id: user.id
@@ -52,7 +53,7 @@ router.post('/createuser', [
 })
 
 
-// Authenticate a user End Point -> login
+// ROUTE-2 Authenticate a user End Point -> login ("/api/auth/login")[No login required]
 
 
 router.post('/login', [
@@ -67,6 +68,7 @@ router.post('/login', [
 	}
 	const { email, password } = req.body;
 	try {
+		// Finding user
 		let user = await User.findOne({ email });
 		if (!user) {
 			return res.status(400).json({ error: "Enter correct email or password" });
@@ -75,7 +77,7 @@ router.post('/login', [
 		if (!passwordCompare) {
 			return res.status(400).json({ error: "Enter correct email or password" });
 		}
-		const JWT_SECRET = 'Aakash123rocks#'
+		// JSON web token
 		const payload = {
 			user: {
 				id: user.id
@@ -83,7 +85,22 @@ router.post('/login', [
 		}
 		const authToken = jwt.sign(payload, JWT_SECRET);
 		res.json({ authToken })
-		
+
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send("Internal Server Error");
+	}
+})
+
+
+// ROUTE-3 Get logged in user details ("/api/auth/getuser")[Login required]
+
+
+router.post('/getuser', fetchuser, async (req, res) => {
+	try {
+		userId = req.user.id;
+		const user = await User.findById(userId).select("-password");
+		res.send(user)
 	} catch (error) {
 		console.error(error.message);
 		res.status(500).send("Internal Server Error");
