@@ -97,7 +97,9 @@ router.post('/login', [
 
 
 router.post('/getuser', fetchuser, async (req, res) => {
+	// fetchuser is a middleware for getting data from jwt token
 	try {
+		// get userId using middleware 
 		userId = req.user.id;
 		const user = await User.findById(userId).select("-password");
 		res.send(user)
