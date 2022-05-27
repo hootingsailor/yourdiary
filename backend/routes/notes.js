@@ -37,7 +37,7 @@ router.post('/addnote', fetchuser, [
         }
         const note = new Notes({
             title, description, tag, user: req.user.id
-        })
+        });
         const savedNote = await note.save();
         res.json(savedNote);
     } catch (error) {
@@ -46,4 +46,18 @@ router.post('/addnote', fetchuser, [
     }
 })
 
-module.exports = router
+
+// ROUTE-3 Update an existing Note -> updatenote ("/api/notes/updatenote") [Login required]
+
+
+router.put('/updatenote/:id', fetchuser, async (req , res) => {
+    const {title, description, tag} = req.body;
+    // Create a newNote object
+    const newNote = {};
+    if(title) {newNote.title = title}; 
+    if(description) {newNote.description = description};
+    if(tag) {newNote.tag = tag};
+    
+})
+
+module.exports = router;
